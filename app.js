@@ -1,7 +1,11 @@
 const config = require('./config');
+const logger = require('./logger');
 
 const { Rcon } = require('rcon-client');
 const axios = require('axios');
+
+// Logger
+logger.init();
 
 // Rcon
 const rcon = new Rcon({
@@ -27,11 +31,11 @@ Payment.init({
     whitelisted: DataTypes.BOOLEAN,
 }, { sequelize, modelName: 'payment' });
 sequelize.sync()
-    .then(() => { console.log("[DB] Table init completed"); })
-    .catch(() => { console.log("[DB] Table init fault"); });
+    .then(() => { logger.log("[DB] Table init completed"); })
+    .catch(() => { logger.log("[DB] Table init fault"); });
 
 async function healthCheck() {
-    console.log("[INFO] Performing health check");
+    logger.log("[INFO] Performing health check");
 
     // SQLite3
     try {
@@ -47,10 +51,10 @@ async function healthCheck() {
             }
         });
 
-        console.log("[OK] DB");
+        logger.log("[OK] DB");
     }
     catch {
-        console.log("[FAULT] DB");
+        logger.log("[FAULT] DB");
     }
 
     // Donation alerts
@@ -61,27 +65,27 @@ async function healthCheck() {
     })
         .then(function (response) {
             if (response.status === 200) {
-                console.log("[OK] DonationAlerts");
+                logger.log("[OK] DonationAlerts");
             }
             else {
-                console.log("[FAULT] DonationAlerts");
+                logger.log("[FAULT] DonationAlerts");
             }
         })
         .catch(function (error) {
-            console.log("[FAULT] DonationAlerts");
+            logger.log("[FAULT] DonationAlerts");
         });
 
     try {
         await rcon.connect();
         let res = await rcon.send("list");
         await rcon.end();
-        console.log("[OK] Rcon");
+        logger.log("[OK] Rcon");
     }
     catch {
-        console.log("[FAULT] Rcon");
+        logger.log("[FAULT] Rcon");
     }
 
-    console.log("[INFO] Health check completed");
+    logger.log("[INFO] Health check completed");
 }
 
 async function dbIsEntryExistByDaIdAsync(daId) {
@@ -94,7 +98,7 @@ async function dbIsEntryExistByDaIdAsync(daId) {
         return res != null;
     }
     catch (err) {
-        console.log(`[DB] Exception caught when tried to find an entry: ${err}`);
+        logger.log(`[DB] Exception caught when tried to find an entry: ${err}`);
         return false;
     }
 }
@@ -109,7 +113,7 @@ async function dbIsEntryExistByUsernameAsync(username) {
         return res != null;
     }
     catch (err) {
-        console.log(`[DB] Exception caught when tried to find an entry: ${err}`);
+        logger.log(`[DB] Exception caught when tried to find an entry: ${err}`);
         return false;
     }
 }
@@ -126,7 +130,7 @@ async function dbNewEntryAsync(daId, username, message, rub) {
         return true;
     }
     catch (err) {
-        console.log(`[DB] Failed to create an entry: ${err}`);
+        logger.log(`[DB] Failed to create an entry: ${err}`);
         return false;
     }
 }
@@ -142,7 +146,7 @@ async function dbUpdateEntryWhitelistByUsernameAsync(username, whitelisted) {
         return true;
     }
     catch (err) {
-        console.log(`[DB] Failed to update an entry: ${err}`);
+        logger.log(`[DB] Failed to update an entry: ${err}`);
         return false;
     }
 }
@@ -158,7 +162,7 @@ async function dbUpdateEntryWhitelistByDaIdAsync(daId, whitelisted) {
         return true;
     }
     catch (err) {
-        console.log(`[DB] Failed to update an entry: ${err}`);
+        logger.log(`[DB] Failed to update an entry: ${err}`);
         return false;
     }
 }
@@ -173,7 +177,7 @@ async function dbFindAllNotWhitelisted() {
         return res;
     }
     catch (err) {
-        console.log(`[ERROR] poll fault, cant find all: ${err}`);
+        logger.log(`[ERROR] poll fault, cant find all: ${err}`);
         return false;
     }
 }
@@ -184,7 +188,7 @@ async function dbFindAllNotWhitelisted() {
 //         return true;
 //     }
 //     catch (err) {
-//         console.log(`[DB] Failed return money made: ${err}`);
+//         logger.log(`[DB] Failed return money made: ${err}`);
 //         return false;
 //     }
 // }
@@ -205,7 +209,7 @@ async function checkIsWhitelistedAsync(username) {
         return res.whitelisted;
     }
     catch (err) {
-        console.log(`[DB] Failed find an entry: ${err}`);
+        logger.log(`[DB] Failed find an entry: ${err}`);
         return false;
     }
 }
@@ -251,7 +255,7 @@ async function handleDonationEntry(data) {
                 message = data.message;
             }
 
-            console.log("[INFO] Adding new entry");
+            logger.log("[INFO] Adding new entry");
             await dbNewEntryAsync(data.id, data.username, message, data.amount);
         }
     }
@@ -260,8 +264,8 @@ async function handleDonationEntry(data) {
 async function init() {
     let entries = [];
     await getAllDonationPages()
-        .then((res) => { entries = res; console.log('[OK] init ok'); })
-        .catch((err) => { console.log(`[ERROR] init fault: ${err}`); });
+        .then((res) => { entries = res; logger.log('[OK] init ok'); })
+        .catch((err) => { logger.log(`[ERROR] init fault: ${err}`); });
     for (const el of entries) {
         await handleDonationEntry(el);
     }
@@ -276,7 +280,7 @@ async function poll() {
             }
     })
         .catch((err) => {
-            console.log(`[ERROR] poll fault, db add error: ${err}`);
+            logger.log(`[ERROR] poll fault, db add error: ${err}`);
         });
 
     // Whitelist
@@ -286,21 +290,21 @@ async function poll() {
             entriesNotWhitelisted = res;
         })
         .catch((err) => {
-            console.log(`[ERROR] poll fault, db find all error: ${err}`);
+            logger.log(`[ERROR] poll fault, db find all error: ${err}`);
         });
 
     for (const el of entriesNotWhitelisted) {
         await addToWhitelistAsync(el.username)
             .then(() => {
-                console.log(`[INFO] Rcon add user ${el.username}`);
+                logger.log(`[INFO] Rcon add user ${el.username}`);
                 dbUpdateEntryWhitelistByDaIdAsync(el.daId, true)
-                    .then(() => { console.log(`[INFO] User updated ${el.username}`); })
+                    .then(() => { logger.log(`[INFO] User updated ${el.username}`); })
                     .catch((err) => {
-                        console.log(`[ERROR] db fault, unable to update user ${el.username} : ${err}`);
+                        logger.log(`[ERROR] db fault, unable to update user ${el.username} : ${err}`);
                     });
             })
             .catch((err) => {
-                console.log(`[ERROR] rcon fault, unable to add user ${el.username} : ${err}`);
+                logger.log(`[ERROR] rcon fault, unable to add user ${el.username} : ${err}`);
             });
     }
 }
@@ -308,7 +312,7 @@ async function poll() {
 // Run
 healthCheck();
 init();
-console.log("[INFO] Start polling");
+logger.log("[INFO] Start polling");
 setInterval(function(){
     poll();
 }, 5000);
