@@ -1,0 +1,13 @@
+module.exports = {
+    discordWebHookLink: "",
+    minPriceRub: "59",
+    whitelistCommand: "easywl add ${user}",
+    donationAlerts: {
+        token: "",
+    },
+    rcon: {
+        host: "",
+        port: "25575",
+        pass: "",
+    }
+};
