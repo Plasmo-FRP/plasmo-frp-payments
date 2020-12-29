@@ -9,8 +9,8 @@
     "dev": "nodemon app.js"
   },
   "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "author": "Alexander Emelyanov <contact.emelyanov@gmail.com>",
+  "license": "private, without permission to use, storage, distribution, etc",
   "devDependencies": {
     "nodemon": "^2.0.6"
   },
