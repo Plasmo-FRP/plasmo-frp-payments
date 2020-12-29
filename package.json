@@ -17,14 +17,10 @@
   "dependencies": {
     "axios": "^0.21.1",
     "discord-webhook-node": "^1.1.8",
-    "https": "^1.0.0",
     "node-html-parser": "^2.0.0",
     "plotly.js-dist": "^1.58.4",
     "rcon-client": "^4.2.3",
-    "request": "^2.88.2",
-    "sanitize-html": "^2.3.0",
     "sequelize": "^6.3.5",
-    "socket.io-client": "^3.0.4",
     "sqlite3": "^5.0.0"
   }
 }

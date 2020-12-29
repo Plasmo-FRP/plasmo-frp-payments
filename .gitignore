@@ -1,4 +1,4 @@
-.idea/
+idea/
 node_modules/
-app.db/
 config.js
+app.db
