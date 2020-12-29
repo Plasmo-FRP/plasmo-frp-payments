@@ -17,7 +17,8 @@ function handle() {
         .setTimestamp();
 
     hook.send(embed)
-        .then(() => { buffer = ""; });
+        .then(() => { buffer = ""; })
+        .catch(() => { console.log("[No discord]") });
 }
 
 function init() {

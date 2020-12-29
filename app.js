@@ -31,8 +31,8 @@ Payment.init({
     whitelisted: DataTypes.BOOLEAN,
 }, { sequelize, modelName: 'payment' });
 sequelize.sync()
-    .then(() => { logger.log("[DB] Table init completed"); })
-    .catch(() => { logger.log("[DB] Table init fault"); });
+    .then(() => { logger.log("[INFO] DB, Table init completed"); })
+    .catch(() => { logger.log("[INFO] DB, Table init fault"); });
 
 async function healthCheck() {
     logger.log("[INFO] Performing health check");
@@ -249,14 +249,18 @@ async function getAllDonationPages() {
 async function handleDonationEntry(data) {
     let entryExist = await dbIsEntryExistByDaIdAsync(data.id);
     if (!entryExist) {
-        if (data.recipient_name === 'plasmofrp' && data.currency === 'RUB' && parseFloat(data.amount) >= parseFloat(config.minPriceRub)) {
-            let message = "";
-            if (data.message_type === 'text') {
-                message = data.message;
-            }
+        if (Date.parse(data.created_at) >= Date.parse(config.filters.minDate)) {
+            if (data.recipient_name === 'plasmofrp' && data.currency === 'RUB'
+                && parseInt(data.amount) >= config.filters.minPriceRub
+                && parseInt(data.amount) <= config.filters.maxPriceRub) {
+                let message = "";
+                if (data.message_type === 'text') {
+                    message = data.message;
+                }
 
-            logger.log("[INFO] Adding new entry");
-            await dbNewEntryAsync(data.id, data.username, message, data.amount);
+                logger.log("[INFO] Adding new entry");
+                await dbNewEntryAsync(data.id, data.username, message, data.amount);
+            }
         }
     }
 }

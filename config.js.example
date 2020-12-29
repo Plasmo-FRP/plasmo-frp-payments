@@ -1,7 +1,11 @@
 module.exports = {
     discordWebHookLink: "",
-    minPriceRub: "59",
     whitelistCommand: "easywl add ${user}",
+    filters: {
+        minDate: '2020-12-28 00:00:00',
+        minPriceRub: 59,
+        maxPriceRub: 200,
+    },
     donationAlerts: {
         token: "",
     },
