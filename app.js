@@ -98,7 +98,7 @@ async function dbIsEntryExistByDaIdAsync(daId) {
         return res != null;
     }
     catch (err) {
-        logger.log(`[DB] Exception caught when tried to find an entry: ${err}`);
+        logger.log(`[ERROR]  DB error, exception caught when tried to find an entry: ${err}`);
         return false;
     }
 }
@@ -113,7 +113,7 @@ async function dbIsEntryExistByUsernameAsync(username) {
         return res != null;
     }
     catch (err) {
-        logger.log(`[DB] Exception caught when tried to find an entry: ${err}`);
+        logger.log(`[ERROR] DB error, exception caught when tried to find an entry: ${err}`);
         return false;
     }
 }
@@ -130,7 +130,7 @@ async function dbNewEntryAsync(daId, username, message, rub) {
         return true;
     }
     catch (err) {
-        logger.log(`[DB] Failed to create an entry: ${err}`);
+        logger.log(`[ERROR] DB error, failed to create an entry: ${err}`);
         return false;
     }
 }
@@ -146,7 +146,7 @@ async function dbUpdateEntryWhitelistByUsernameAsync(username, whitelisted) {
         return true;
     }
     catch (err) {
-        logger.log(`[DB] Failed to update an entry: ${err}`);
+        logger.log(`[ERROR] DB error, failed to update an entry: ${err}`);
         return false;
     }
 }
@@ -162,7 +162,7 @@ async function dbUpdateEntryWhitelistByDaIdAsync(daId, whitelisted) {
         return true;
     }
     catch (err) {
-        logger.log(`[DB] Failed to update an entry: ${err}`);
+        logger.log(`[ERROR] DB error, failed to update an entry: ${err}`);
         return false;
     }
 }
@@ -177,7 +177,7 @@ async function dbFindAllNotWhitelisted() {
         return res;
     }
     catch (err) {
-        logger.log(`[ERROR] poll fault, cant find all: ${err}`);
+        logger.log(`[ERROR] Poll error, failed to find all: ${err}`);
         return false;
     }
 }
@@ -209,7 +209,7 @@ async function checkIsWhitelistedAsync(username) {
         return res.whitelisted;
     }
     catch (err) {
-        logger.log(`[DB] Failed find an entry: ${err}`);
+        logger.log(`[ERROR] DB error, failed find an entry: ${err}`);
         return false;
     }
 }
@@ -258,7 +258,7 @@ async function handleDonationEntry(data) {
                     message = data.message;
                 }
 
-                logger.log("[INFO] Adding new entry");
+                logger.log("[INFO] Incoming payment. New entry has been added to the DB.");
                 await dbNewEntryAsync(data.id, data.username, message, data.amount);
             }
         }
@@ -268,8 +268,8 @@ async function handleDonationEntry(data) {
 async function init() {
     let entries = [];
     await getAllDonationPages()
-        .then((res) => { entries = res; logger.log('[OK] init ok'); })
-        .catch((err) => { logger.log(`[ERROR] init fault: ${err}`); });
+        .then((res) => { entries = res; })
+        .catch((err) => { logger.log(`[ERROR] Initialization error. Unable to get all donation pages: ${err}`); });
     for (const el of entries) {
         await handleDonationEntry(el);
     }
@@ -284,7 +284,7 @@ async function poll() {
             }
     })
         .catch((err) => {
-            logger.log(`[ERROR] poll fault, db add error: ${err}`);
+            logger.log(`[ERROR] Poll error, DB failed: ${err}`);
         });
 
     // Whitelist
@@ -294,21 +294,21 @@ async function poll() {
             entriesNotWhitelisted = res;
         })
         .catch((err) => {
-            logger.log(`[ERROR] poll fault, db find all error: ${err}`);
+            logger.log(`[ERROR] Poll error, DB failed to find all: ${err}`);
         });
 
     for (const el of entriesNotWhitelisted) {
         await addToWhitelistAsync(el.username)
             .then(() => {
-                logger.log(`[INFO] Rcon add user ${el.username}`);
+                logger.log(`[INFO] Rcon added user ${el.username}`);
                 dbUpdateEntryWhitelistByDaIdAsync(el.daId, true)
                     .then(() => { logger.log(`[INFO] User updated ${el.username}`); })
                     .catch((err) => {
-                        logger.log(`[ERROR] db fault, unable to update user ${el.username} : ${err}`);
+                        logger.log(`[ERROR] DB error, unable to update user ${el.username} : ${err}`);
                     });
             })
             .catch((err) => {
-                logger.log(`[ERROR] rcon fault, unable to add user ${el.username} : ${err}`);
+                logger.log(`[ERROR] Rcon error, unable to add user ${el.username} : ${err}`);
             });
     }
 }
