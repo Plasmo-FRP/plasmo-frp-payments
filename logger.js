@@ -1,38 +1,52 @@
 const config = require('./config');
 
+const moment = require('moment');
 const { Webhook, MessageBuilder } = require('discord-webhook-node');
 const hook = new Webhook(config.discordWebHookLink);
 
 let buffer = "";
+let notifiedWebhookStopped = false;
 
 function log(message) {
+    const timeNow = moment(Date.now());
+    const timeString = timeNow.tz(config.logger.timezone).format('HH:mm:ss DD.MM.YY');
+
+    message = `[${timeString}] ` + message;
+
     console.log(message);
     buffer += message + "\n";
 }
 
-function handle() {
+function notifyDiscordWebhookDontWork() {
+    if (!notifiedWebhookStopped) {
+        log("[ERROR] Discord webhook stopped working");
+        notifiedWebhookStopped = true;
+    }
+}
+
+async function handle() {
     const embed = new MessageBuilder()
         .setColor('#f4a300')
         .setDescription(buffer)
         .setTimestamp();
 
-    hook.send(embed)
+    await hook.send(embed)
         .then(() => { buffer = ""; })
-        .catch(() => { console.log("[No discord]") });
+        .catch(() => { notifyDiscordWebhookDontWork(); });
 }
 
 function init() {
     setInterval(function() {
-        if (buffer.length > 120) {
+        if (buffer.length >= config.logger.bufferSize) {
             handle();
         }
-    }, 500);
+    }, config.logger.tickBufferMs);
 
     setInterval(function() {
         if (buffer.length > 0) {
             handle();
         }
-    }, 5000);
+    }, config.logger.tickPermanentMs);
 }
 
 module.exports = {
