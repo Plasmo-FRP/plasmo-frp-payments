@@ -17,6 +17,7 @@
   "dependencies": {
     "axios": "^0.21.1",
     "discord-webhook-node": "^1.1.8",
+    "express": "^4.17.1",
     "moment": "^2.29.1",
     "moment-timezone": "^0.5.32",
     "node-html-parser": "^2.0.0",

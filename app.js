@@ -2,6 +2,7 @@ const config = require('./config');
 const logger = require('./services/logger');
 const database = require('./services/database');
 const donationAlerts = require('./services/donationalerts');
+const webDataProvider = require('./services/webdataprovider');
 const HealthCheck = require("./services/healthcheck").HealthCheck;
 const { Rcon } = require('rcon-client');
 const { Sequelize } = require("sequelize");
@@ -21,6 +22,12 @@ const rcon = new Rcon({
     port: config.rcon.port,
     password: config.rcon.pass
 });
+
+// Web Data Provider
+const wdp = new webDataProvider.WebDataProvider({
+    db: db
+});
+wdp.listen(4488);
 
 // Health check
 const hc = new HealthCheck({
