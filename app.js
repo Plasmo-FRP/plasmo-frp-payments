@@ -23,10 +23,12 @@ const rcon = new Rcon({
 });
 
 // Health check
-const hc = new HealthCheck(db.sequelize, db, da);
-hc.perform().then(() => { logger.log("[Info] Health check completed"); });
-
-return;
+const hc = new HealthCheck({
+    db: db,
+    da: da,
+    rcon: rcon
+});
+hc.perform();
 
 async function addToWhitelistAsync(username) {
     let bakedCommand = config.whitelistCommand.replace("${user}", username);
@@ -47,7 +49,15 @@ async function handleDonationEntry(data) {
                         message = data.message;
                     }
 
-                    logger.log("[INFO] Incoming payment. New entry has been added to the DB.");
+                    if (data.message !== null) {
+                        if (data.message.length > 0) {
+                            logger.log(`[INFO] Incoming payment from ${data.username} (${data.currency} ${data.amount}) with the following message: ${data.message}. The entry has been added to the DB.`);
+                        }
+                        else {
+                            logger.log(`[INFO] Incoming payment from ${data.username} (${data.currency} ${data.amount}). The entry has been added to the DB.`);
+                        }
+                    }
+
                     await db.NewEntryAsync(data.id, data.username, message, data.amount);
                 }
             }
@@ -94,11 +104,11 @@ async function poll() {
                 db.UpdateEntryWhitelistByDaIdAsync(el.daId, true)
                     .then(() => { logger.log(`[INFO] User updated ${el.username}`); })
                     .catch((err) => {
-                        logger.log(`[ERROR] DB error, unable to update user ${el.username} : ${err}`);
+                        logger.log(`[ERROR] DB error, unable to update user ${el.username}: ${err}`);
                     });
             })
             .catch((err) => {
-                logger.log(`[ERROR] Rcon error, unable to add user ${el.username} : ${err}`);
+                logger.log(`[ERROR] Rcon error, unable to add user ${el.username}: ${err}`);
             });
     }
 }
@@ -108,4 +118,4 @@ init();
 logger.log("[INFO] Start polling");
 setInterval(function(){
     poll();
-}, 5000);
+}, config.tickMs);

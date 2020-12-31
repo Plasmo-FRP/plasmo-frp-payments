@@ -30,7 +30,7 @@ class Database {
             return res != null;
         }
         catch (err) {
-            logger.log(`[ERROR]  DB error, exception caught when tried to find an entry: ${err}`);
+            logger.log(`[ERROR] DB error, exception caught when tried to find an entry: ${err}`);
             return false;
         }
     }

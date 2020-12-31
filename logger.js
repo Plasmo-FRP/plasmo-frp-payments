@@ -27,8 +27,7 @@ function notifyDiscordWebhookDontWork() {
 async function handle() {
     const embed = new MessageBuilder()
         .setColor('#f4a300')
-        .setDescription(buffer)
-        .setTimestamp();
+        .setDescription(buffer);
 
     await hook.send(embed)
         .then(() => { buffer = ""; })

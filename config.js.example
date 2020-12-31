@@ -1,13 +1,24 @@
 module.exports = {
     discordWebHookLink: "",
     whitelistCommand: "easywl add ${user}",
+    tickMs: 5000,
     filters: {
+        recipient: {
+            enabled: true,
+            value: "plasmofrp"
+        },
         minDate: '2020-12-28 00:00:00',
         minPriceRub: 59,
         maxPriceRub: 200,
     },
     donationAlerts: {
         token: "",
+    },
+    logger: {
+        tickPermanentMs: 10000,
+        tickBufferMs: 500,
+        bufferSize: 120,
+        timezone: "Europe/Moscow"
     },
     rcon: {
         host: "",

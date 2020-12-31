@@ -1,20 +1,18 @@
-const config = require('./config');
 const logger = require('./logger');
-const axios = require('axios');
-const { Rcon } = require('rcon-client');
+const database = require('./database');
 
 class HealthCheck {
-    constructor(sequelize, db, da) {
-        this.sequelize = sequelize;
-        this.db = db;
-        this.da = da;
+    constructor(config) {
+        this.db = config.db;
+        this.da = config.da;
+        this.rcon = config.rcon;
     }
 
-    async perform() {
-        logger.log(`[INFO] Performing health check`);
+    perform() {
+        logger.log(`[INFO] Health check started`);
         let result = true;
 
-        await this.checkDb().then((res) => {
+        this.checkDb().then((res) => {
             if (res) {
                 logger.log(`[OK] DB`);
             } else {
@@ -23,7 +21,7 @@ class HealthCheck {
             }
         });
 
-        await this.checkDonationAlerts().then((res) => {
+        this.checkDonationAlerts().then((res) => {
             if (res) {
                 logger.log(`[OK] Donation Alerts`);
             } else {
@@ -32,7 +30,7 @@ class HealthCheck {
             }
         });
 
-        await this.checkRcon().then((res) => {
+        this.checkRcon().then((res) => {
             if (res) {
                 logger.log(`[OK] Rcon`);
             } else {
@@ -46,12 +44,12 @@ class HealthCheck {
 
     async checkDb() {
         try {
-            await this.db.Payment.create({
+            await database.Payment.create({
                 username: "healthcheck#__test_username__",
                 rub: 0,
                 whitelisted: true,
             });
-            await this.db.Payment.destroy({
+            await database.Payment.destroy({
                 where: {
                     username: "healthcheck#__test_username__",
                     rub: 0,
@@ -66,25 +64,25 @@ class HealthCheck {
     }
 
     async checkDonationAlerts() {
-        await this.da.getDonationPage()
-            .then((res) => { return res !== null; })
-            .catch((e) => { console.log(e); return false; });
+        try {
+            let res = await this.da.getDonationPage();
+            return res !== null;
+        }
+        catch {
+            return false;
+        }
     }
 
     async checkRcon() {
-        const rcon = new Rcon({
-            host: config.rcon.host,
-            port: config.rcon.port,
-            password: config.rcon.pass
-        });
         let res = true;
         try {
-            rcon.connect().catch(() => { res = false; });
-            await rcon.send("list").catch(() => { res = false; });
-            rcon.end().catch(() => { res = false; });
+            await this.rcon.connect();
+            await this.rcon.send("list");
+            await this.rcon.end();
             return res;
         }
-        catch {
+        catch(e) {
+            console.log(e);
             return false;
         }
     }
