@@ -1,5 +1,6 @@
 const logger = require('./logger');
 const { Sequelize, Model, DataTypes } = require('sequelize');
+const { Op } = require('sequelize');
 
 class Payment extends Model {}
 
@@ -13,6 +14,7 @@ class Database {
             message: DataTypes.STRING,
             rub: DataTypes.FLOAT,
             whitelisted: DataTypes.BOOLEAN,
+            daCreatedAt: DataTypes.DATE,
         }, { sequelize, modelName: 'payment' });
 
         sequelize.sync()
@@ -50,7 +52,7 @@ class Database {
         }
     }
 
-    async NewEntryAsync(daId, username, message, rub) {
+    async NewEntryAsync(daId, username, message, rub, createdAt) {
         try {
             await Payment.create({
                 daId: daId,
@@ -58,6 +60,7 @@ class Database {
                 message: message,
                 rub: rub,
                 whitelisted: false,
+                daCreatedAt: createdAt
             });
             return true;
         }
@@ -114,16 +117,23 @@ class Database {
         }
     }
 
-// async function GetMoneyMadeByHoursAsync(hours) {
-//     try {
-//         await Payment.findAll({where: createdAt: ... > 211222})
-//         return true;
-//     }
-//     catch (err) {
-//         logger.log(`[DB] Failed return money made: ${err}`);
-//         return false;
-//     }
-// }
+    async GetEntriesByHoursAsync(hours) {
+        try {
+            let res = await Payment.findAll({
+                where: {
+                    daCreatedAt: {
+                        [Op.gte]: moment().subtract(hours, 'hours').toDate()
+                    }
+                }
+            });
+            console.log(res);
+            return true;
+        }
+        catch (err) {
+            logger.log(`[ERROR] DB error, failed to return entries by time: ${err}`);
+            return false;
+        }
+    }
 
     async IsWhitelistedAsync(username) {
         try {

@@ -18,7 +18,10 @@ class WebDataProvider {
         });
 
         this.app.get('/payments', function (req, res) {
-            res.send('Тут будет список покупок за настоящий месяц');
+            this.db.GetEntriesByHoursAsync(24 * 30).then((query) => {
+                let message = "";
+                res.send(query);
+            }).catch(() => { res.send("Error :("); });
         });
 
         this.app.get('/stats', function (req, res) {
@@ -26,6 +29,7 @@ class WebDataProvider {
         });
 
         logger.log("[INFO] WebDataProvider started");
+
         this.app.listen(port);
     }
 }

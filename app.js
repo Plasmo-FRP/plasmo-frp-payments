@@ -65,7 +65,7 @@ async function handleDonationEntry(data) {
                         }
                     }
 
-                    await db.NewEntryAsync(data.id, data.username, message, data.amount);
+                    await db.NewEntryAsync(data.id, data.username, message, data.amount, data.created_at);
                 }
             }
         }
