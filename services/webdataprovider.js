@@ -25,7 +25,7 @@ class WebDataProvider {
                         entriesNumber++;
                     }
 
-                    message += `Сводка за ${moment().startOf('month').format('DD.MM.YYYY')}. `;
+                    message += `Сводка за ${moment().startOf('month').format('MM.YYYY')}. `;
                     message += `Количество записей найдено: ${entriesNumber}. Рублей заработано: ${rubSum}<br><br>`;
                     message += `paymentDate,username,message,rub,whitelisted<br>`;
 
@@ -55,7 +55,7 @@ class WebDataProvider {
                         entriesNumber++;
                     }
 
-                    message += `Сводка за ${moment().subtract(1, 'months').startOf('month').format('DD.MM.YYYY')}. `;
+                    message += `Сводка за ${moment().subtract(1, 'months').startOf('month').format('MM.YYYY')}. `;
                     message += `Количество записей найдено: ${entriesNumber}. Рублей заработано: ${rubSum}<br><br>`;
                     message += `paymentDate,username,message,rub,whitelisted<br>`;
 
