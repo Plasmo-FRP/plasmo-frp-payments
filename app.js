@@ -24,10 +24,10 @@ const rcon = new Rcon({
 });
 
 // Web Data Provider
-const wdp = new webDataProvider.WebDataProvider({
-    db: db
-});
-wdp.listen(4488);
+if (config.webDataProvider.enabled) {
+    const wdp = new webDataProvider.WebDataProvider();
+    wdp.listen(config.webDataProvider.port, db);
+}
 
 // Health check
 const hc = new HealthCheck({

@@ -11,6 +11,10 @@ module.exports = {
         minPriceRub: 59,
         maxPriceRub: 200,
     },
+    webDataProvider: {
+        enabled: true,
+        port: 4488,
+    },
     donationAlerts: {
         token: "",
     },

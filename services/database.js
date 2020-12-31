@@ -1,4 +1,5 @@
 const logger = require('./logger');
+const moment = require('moment');
 const { Sequelize, Model, DataTypes } = require('sequelize');
 const { Op } = require('sequelize');
 
@@ -117,22 +118,27 @@ class Database {
         }
     }
 
-    async GetEntriesByHoursAsync(hours) {
+    async GetEntriesByMomentAsync(from, till) {
         try {
             let res = await Payment.findAll({
                 where: {
                     daCreatedAt: {
-                        [Op.gte]: moment().subtract(hours, 'hours').toDate()
+                        [Op.gte]: from.toDate(),
+                        [Op.lte]: till.toDate()
                     }
                 }
             });
-            console.log(res);
-            return true;
+            return res;
         }
         catch (err) {
             logger.log(`[ERROR] DB error, failed to return entries by time: ${err}`);
             return false;
         }
+    }
+
+    async GetEntriesByHoursAsync(hours) {
+        // TODO Работает ли?
+        return this.GetEntriesByMomentAsync(moment().subtract(hours, 'hours'), moment());
     }
 
     async IsWhitelistedAsync(username) {
