@@ -20,8 +20,6 @@
     "express": "^4.17.1",
     "moment": "^2.29.1",
     "moment-timezone": "^0.5.32",
-    "node-html-parser": "^2.0.0",
-    "plotly.js-dist": "^1.58.4",
     "rcon-client": "^4.2.3",
     "sequelize": "^6.3.5",
     "sqlite3": "^5.0.0"
