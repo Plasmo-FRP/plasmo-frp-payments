@@ -1,8 +1,8 @@
 const config = require('./config');
-const logger = require('./logger');
-const database = require('./database');
-const donationAlerts = require('./donationalerts');
-const HealthCheck = require("./healthcheck").HealthCheck;
+const logger = require('./services/logger');
+const database = require('./services/database');
+const donationAlerts = require('./services/donationalerts');
+const HealthCheck = require("./services/healthcheck").HealthCheck;
 const { Rcon } = require('rcon-client');
 const { Sequelize } = require("sequelize");
 
