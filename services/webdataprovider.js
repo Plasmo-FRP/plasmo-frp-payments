@@ -26,7 +26,7 @@ class WebDataProvider {
                     }
 
                     message += `Сводка за ${moment().startOf('month').format('MM.YYYY')}. `;
-                    message += `Количество записей найдено: ${entriesNumber}. Рублей заработано: ${rubSum}<br><br>`;
+                    message += `Количество записей найдено: ${entriesNumber}. Рублей получено: ${rubSum}<br><br>`;
                     message += `paymentDate,username,message,rub,whitelisted<br>`;
 
                     for (const el of query) {
@@ -56,7 +56,7 @@ class WebDataProvider {
                     }
 
                     message += `Сводка за ${moment().subtract(1, 'months').startOf('month').format('MM.YYYY')}. `;
-                    message += `Количество записей найдено: ${entriesNumber}. Рублей заработано: ${rubSum}<br><br>`;
+                    message += `Количество записей найдено: ${entriesNumber}. Рублей получено: ${rubSum}<br><br>`;
                     message += `paymentDate,username,message,rub,whitelisted<br>`;
 
                     for (const el of query) {

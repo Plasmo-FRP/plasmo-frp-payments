@@ -1,0 +1,31 @@
+{
+    "_comment": "DO NOT EDIT: FILE GENERATED AUTOMATICALLY BY PTERODACTYL PANEL - PTERODACTYL.IO",
+    "meta": {
+        "version": "PTDL_v1",
+        "update_url": null
+    },
+    "exported_at": "2021-06-10T18:27:16+03:00",
+    "name": "Payments",
+    "author": "contact.emelyanov@gmail.com",
+    "description": null,
+    "features": null,
+    "images": [
+        "quay.io\/parkervcp\/pterodactyl-images:debian_nodejs-14"
+    ],
+    "file_denylist": [],
+    "startup": "npm run prod",
+    "config": {
+        "files": "{}",
+        "startup": "{\r\n    \"done\": \"[INFO]\",\r\n    \"userInteraction\": [\r\n        \"Please configure the bot in \\\".\/.config.js\\\".\"\r\n    ]\r\n}",
+        "logs": "{}",
+        "stop": "^C^C"
+    },
+    "scripts": {
+        "installation": {
+            "script": "#!\/bin\/bash\r\n\r\napt update\r\napt install -y git curl jq file unzip make gcc g++ python python-dev libtool\r\n\r\nmkdir \/usr\/src\/app\r\ncd \/usr\/src\/app\r\n\r\necho \\\"Cloning repo\\\"\r\n\r\ngit clone https:\/\/github.com\/Homosanians\/plasmo-frp-payments.git\r\n\r\ncp config.js.example config.js\r\n\r\necho \\\"Installing dependencies\\\"\r\n\r\nnpm i --production\r\n\r\necho -e \\\"Installed\\\"\r\nexit 0",
+            "container": "node:14-buster-slim",
+            "entrypoint": "bash"
+        }
+    },
+    "variables": []
+}
